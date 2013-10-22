@@ -1,0 +1,6 @@
+# jackrabbit
+#repository.configFile=/home/decebal/work/nextreports-oss/server/config/repository.xml
+#repository.home=/home/decebal/work/nextreports-oss/server/data
+#repository.username=decebal
+#repository.password=1
+
