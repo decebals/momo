@@ -13,12 +13,22 @@ All you must to do is to set some properties in the momo.properties file.
 How to use
 -------------------
 
-`mvn clean package`
-`mkdir dist`
-`cd dist`
-`copy ../target/momo-*.zip .`
-`unzip momo-*.zip`
-`java -jar momo-*.jar`
+Build the distibution file (zip file) with:
+```
+mvn clean package
+```
+
+Above command create a file `momo-*.zip` in target folder.
+
+To run momo application you can follow these steps:
+
+```
+mkdir dist
+cd dist 
+cp ../target/momo-*.zip .
+unzip momo-*.zip
+java -jar momo-*.jar
+```   
 
 DON'T FORGET
 You must create a file momo.properties from momo.properties.sample.
