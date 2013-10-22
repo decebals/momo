@@ -18,7 +18,7 @@ Build the distibution file (zip file) with:
 mvn clean package
 ```
 
-Above command create a file `momo-*.zip` in target folder.
+Above command creates a file `momo-*.zip` in target folder.
 
 To run momo application you can follow these steps:
 
