@@ -51,6 +51,7 @@ public class ConsolePanel extends JXPanel implements TreeSelectionListener {
 
 	public ConsolePanel() {
 		super();
+		
 		initComponents();
 	}
 
@@ -63,14 +64,16 @@ public class ConsolePanel extends JXPanel implements TreeSelectionListener {
 		}
 		
 		currentItem = treeNode.getUserObject();
+				
 		try {
 			table.clear();
 			
 			table.add("Name", currentItem.getName());
 			table.add("Path", currentItem.getPath());
-			table.add("Depth",  currentItem.getDepth());
+			table.add("Depth", currentItem.getDepth());
 			if (currentItem.isNode()) { // it's a node
 				Node node = (Node) currentItem;
+				table.add("Identifier", node.getIdentifier());
 				table.add("Locked", node.isLocked());
 				table.add("Nodes", node.getNodes().getSize());
 				table.add("Properties", node.getProperties().getSize());
@@ -78,8 +81,8 @@ public class ConsolePanel extends JXPanel implements TreeSelectionListener {
 				Property property = (Property) currentItem;
 				table.add("Type", PropertyType.nameFromValue(property.getType()));
 				PropertyDefinition propertyDefinition = property.getDefinition();
-				table.add("Mandatory",  propertyDefinition.isMandatory());
-				table.add("Protected",  propertyDefinition.isProtected());
+				table.add("Mandatory", propertyDefinition.isMandatory());
+				table.add("Protected", propertyDefinition.isProtected());
 				table.add("Multiple", propertyDefinition.isMultiple());
 				if (!propertyDefinition.isMultiple()) {
 					table.add("Size", property.getLength());

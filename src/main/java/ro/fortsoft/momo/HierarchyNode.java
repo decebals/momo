@@ -26,6 +26,7 @@ public class HierarchyNode extends DefaultMutableTreeNode {
     	super(item, true);
     }
 
+    @Override
     public Item getUserObject() {
     	return (Item) super.getUserObject();
     }
