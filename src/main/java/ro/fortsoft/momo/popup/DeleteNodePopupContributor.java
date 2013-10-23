@@ -15,11 +15,11 @@ package ro.fortsoft.momo.popup;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
-import javax.jcr.Node;
 import javax.jcr.Session;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
+import javax.swing.tree.TreeNode;
 
 import ro.fortsoft.momo.JcrBrowser;
 import ro.fortsoft.momo.HierarchyNode;
@@ -31,9 +31,7 @@ import ro.fortsoft.momo.util.JcrUtils;
 /**
  * @author Decebal Suiu
  */
-public class RenameFolderPopupContributor extends AbstractPopupContributor {
-
-	private HierarchyNode selectedNode;
+public class DeleteNodePopupContributor extends AbstractPopupContributor {
 
 	@Override
 	public String getPath() {
@@ -42,40 +40,45 @@ public class RenameFolderPopupContributor extends AbstractPopupContributor {
 
 	@Override
 	public Action getPopupAction(List<HierarchyNode> selectedNodes) {
-		
-		if ((selectedNodes.size() == 1) && isFolders(selectedNodes))  {
-			this.selectedNode = selectedNodes.get(0);
-			return new RenameFolderAction();
+		if (areNodes(selectedNodes)) {
+			return new RemoveFolderAction(selectedNodes);
 		}
 
 		return null;
 	}
-
-	private class RenameFolderAction extends AbstractAction {
+	
+	private class RemoveFolderAction extends AbstractAction {
 
 		private static final long serialVersionUID = 1L;
+		
+		private List<HierarchyNode> selectedNodes;
 
-		public RenameFolderAction() {
-			super("Rename");
-			putValue(Action.SMALL_ICON, ImageUtils.getImageIcon("rename.gif"));
+		public RemoveFolderAction(List<HierarchyNode> selectedNodes) {
+			super("Delete");
+			
+			this.selectedNodes = selectedNodes;
+			
+			putValue(Action.SMALL_ICON, ImageUtils.getImageIcon("delete.gif"));			
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent event) {
-			String newName = JOptionPane.showInputDialog(JcrBrowser.getBrowserFrame(), "Name", selectedNode);
-			System.out.println("newName = " + newName);
-			if (newName != null) {
+			int confirm = JOptionPane.showConfirmDialog(JcrBrowser.getBrowserFrame(), "Delete folder '" + selectedNodes.size() + "'?");
+			if (confirm == 0) {
 				try {
 					Session session = JcrUtils.getSession();
-					Node jcrNode = (Node) selectedNode.getUserObject();
-					session.move(jcrNode.getPath(), jcrNode.getParent().getPath() + "/" + newName);
+					for (HierarchyNode selectedNode : selectedNodes) {
+						selectedNode.getUserObject().remove();
+					}
 					session.save();
 
 					// refresh the tree
 					HierarchyTree tree = JcrBrowser.getBrowserFrame().getHierarchyPanel().getHierarchyTree();;
 					HierarchyTreeModel treeModel = tree.getModel();
-					selectedNode.setName(newName);
-					treeModel.nodeChanged(selectedNode);
+//					TreeNode parentNode = selectedNode.getParent();
+//					selectedNode.removeFromParent();
+//					treeModel.nodeStructureChanged(parentNode);
+					treeModel.nodeStructureChanged((TreeNode) treeModel.getRoot());
 				} catch (Exception e) {
 					e.printStackTrace();
 					JOptionPane.showMessageDialog(JcrBrowser.getBrowserFrame(), e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

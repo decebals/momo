@@ -23,7 +23,7 @@ import ro.fortsoft.momo.HierarchyNode;
  */
 public abstract class AbstractPopupContributor implements PopupContributor {
 
-	protected boolean isFolders(List<HierarchyNode> selectedNodes) {
+	protected boolean areNodes(List<HierarchyNode> selectedNodes) {
 		for (HierarchyNode selectedNode : selectedNodes) {
 			if (!(selectedNode.getUserObject() instanceof Node)) {
 				return false;

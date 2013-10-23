@@ -21,8 +21,8 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 
 import jsyntaxpane.DefaultSyntaxKit;
-import ro.fortsoft.momo.popup.DeleteFolderPopupContributor;
-import ro.fortsoft.momo.popup.RenameFolderPopupContributor;
+import ro.fortsoft.momo.popup.DeleteNodePopupContributor;
+import ro.fortsoft.momo.popup.RenameNodePopupContributor;
 import ro.fortsoft.momo.util.JcrUtils;
 
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
@@ -94,8 +94,8 @@ public class JcrBrowser {
 	}
 
 	private static void addPopupContibutors(HierarchyTree tree) {
-		tree.addPopupContributor(new DeleteFolderPopupContributor());
-		tree.addPopupContributor(new RenameFolderPopupContributor());
+		tree.addPopupContributor(new DeleteNodePopupContributor());
+		tree.addPopupContributor(new RenameNodePopupContributor());
 	}
 
 	private static void onShutdown() {
