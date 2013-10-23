@@ -3,7 +3,7 @@
 
     <groupId>ro.fortsoft.momo</groupId>
     <artifactId>momo</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1</version>
     <packaging>jar</packaging>
 
     <description>Tiny standalone (swing) JCR browser</description>
@@ -23,7 +23,7 @@
         <connection>scm:git:https://github.com/decebals/momo.git</connection>
         <developerConnection>scm:git:https://github.com/decebals/momo.git</developerConnection>
         <url>git@github.com/decebals/momo.git</url>
-        <tag>HEAD</tag>
+        <tag>release-0.1</tag>
     </scm>
 
     <properties>
