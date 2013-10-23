@@ -35,7 +35,7 @@ DON'T FORGET
 You must create a file momo.properties from momo-sample.properties
 
 
-You can see a screenshot from application in [wiki page] (https://github.com/decebals/momo/wiki).
+You can see some screenshots from application in [wiki page] (https://github.com/decebals/momo/wiki).
 
 License
 --------------
