@@ -8,7 +8,7 @@ Features/Benefits
 -------------------
 Momo is an open source (Apache license) tiny JCR Browser.   
 With Momo you can browse a JCR, you can view the item's properties. Momo comes with built-in viewers for images and xml files.    
-Also, you can query the JCR using XPath query language or SQL query language. A query history is stored in the query-history.xml file and and you can navigate in the query history from application.
+Also, you can query the JCR using XPath query language or SQL query language. A query history is stored in the query-history.xml file and and you can navigate in the query history from application.   
 All you must to do is to set some properties in the momo.properties file.  
 
 How to use
