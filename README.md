@@ -31,7 +31,7 @@ java -jar momo-*.jar
 ```   
 
 DON'T FORGET
-You must create a file momo.properties from momo.properties.sample.
+You must create a file momo.properties from momo-sample.properties
 
 License
 --------------

@@ -30,7 +30,7 @@
 	    	<directory>${project.basedir}</directory>
 			<outputDirectory>/</outputDirectory>
 	      	<includes>
-	        	<include>momo.properties.sample</include>
+	        	<include>momo-sample.properties</include>
 	      	</includes>
 		</fileSet>
     </fileSets>
