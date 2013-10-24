@@ -13,6 +13,7 @@
 package ro.fortsoft.momo.util;
 
 import java.io.FileInputStream;
+import java.util.List;
 import java.util.Properties;
 
 import javax.jcr.Node;
@@ -60,6 +61,42 @@ public class JcrUtils {
 
 		return session;
 	}
+
+	public static boolean rename(Node node, String newName) {
+        Session session = getSession();
+        if (session == null) {
+        	return false;
+        }
+        
+    	try {
+    		session.move(node.getPath(), node.getParent().getPath() + "/" + newName);
+    		session.save();
+		} catch (RepositoryException e) {
+			onFatalError(e);
+			return false;
+		}
+    	
+    	return true;
+    }	
+
+	public static boolean remove(List<Node> nodes) {
+        Session session = getSession();
+        if (session == null) {
+        	return false;
+        }
+        
+    	try {
+    		for (Node node : nodes) {
+    			node.remove();
+    		}
+    		session.save();
+		} catch (RepositoryException e) {
+			onFatalError(e);
+			return false;
+		}
+    	
+    	return true;
+    }	
 
 	private static void init() {
 		Properties properties = new Properties();

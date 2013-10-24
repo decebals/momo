@@ -25,6 +25,7 @@ import ro.fortsoft.momo.PopupTriggerMouseListener;
  */
 public class SwingUtils {
 
+	/*
 	public static void addPopup(JTextComponent textComponent) {
 		JPopupMenu menu = new JPopupMenu();
         menu.add(getActionByName(textComponent, DefaultEditorKit.copyAction, "Copy"));
@@ -36,6 +37,7 @@ public class SwingUtils {
         textComponent.add(menu);
         textComponent.addMouseListener(new PopupTriggerMouseListener(menu, textComponent));
 	}
+	*/
 
 	private static Action getActionByName(JTextComponent textComponent, String name, String description) {
         Action action = textComponent.getActionMap().get(name);

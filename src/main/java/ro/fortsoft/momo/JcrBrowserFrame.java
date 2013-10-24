@@ -41,6 +41,7 @@ public class JcrBrowserFrame extends JXFrame {
 	private HierarchyPanel hierarchyPanel;
 	private ConsolePanel consolePanel;
 	private QueryPanel queryPanel;
+	private JTabbedPane tabbedPane;
 
 	public JcrBrowserFrame() {
 		super("Jcr Browser");
@@ -75,6 +76,10 @@ public class JcrBrowserFrame extends JXFrame {
     public void stopProgress() {
         progressBar.setIndeterminate(false);
     }
+    
+    public void selectTab(int index) {
+    	tabbedPane.setSelectedIndex(index);
+    }
 
 	private void initComponents() {
 		setLayout(new BorderLayout());
@@ -82,7 +87,7 @@ public class JcrBrowserFrame extends JXFrame {
 		hierarchyPanel = new HierarchyPanel();
 		consolePanel = new ConsolePanel();
 
-		JTabbedPane tabbedPane = new JTabbedPane();
+		tabbedPane = new JTabbedPane();
 		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, hierarchyPanel, consolePanel);
 		tabbedPane.setBorder(new CompoundBorder(new EmptyBorder(3, 3, 3, 3), new DropShadowBorder()));
 		tabbedPane.addTab("Hierarchy", splitPane);

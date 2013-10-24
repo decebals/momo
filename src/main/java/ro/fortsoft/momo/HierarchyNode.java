@@ -12,6 +12,8 @@
  */
 package ro.fortsoft.momo;
 
+import java.util.Enumeration;
+
 import javax.jcr.Item;
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -22,6 +24,8 @@ public class HierarchyNode extends DefaultMutableTreeNode {
 
 	private static final long serialVersionUID = 1L;
 	
+	private boolean expanded;
+	
     public HierarchyNode(Item item) {
     	super(item, true);
     }
@@ -31,15 +35,38 @@ public class HierarchyNode extends DefaultMutableTreeNode {
     	return (Item) super.getUserObject();
     }
 
-    @Override
+    /*
+     * Also, this method is called by goToNode() method from QueryPanel file
+     * and for this reason is necesary to check children loading.
+     */
+	@SuppressWarnings("unchecked")
+	@Override
+	public Enumeration<HierarchyNode> children() {
+		if (!expanded) {
+			expand();
+		}
+		
+		return super.children();
+	}
+
+	@Override
     public boolean isLeaf() {
         return !allowsChildren;
     }
 
-    public void setName(String name) {
-    	// TODO
-//        dbObject.xxx(name);
-        this.setUserObject(name);
-    }
+	public boolean isExpanded() {
+		return expanded;
+	}
 
+	/*
+	 * Called by HierarchyTree.TreeLoader
+	 */
+	void setExpanded(boolean expanded) {
+		this.expanded = expanded;
+	}
+
+	private void expand() {
+		JcrBrowser.getBrowserFrame().getHierarchyPanel().getHierarchyTree().expandNode(this, false);
+	}
+	
 }

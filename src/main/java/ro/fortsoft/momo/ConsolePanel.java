@@ -105,6 +105,7 @@ public class ConsolePanel extends JXPanel implements TreeSelectionListener {
 			}
 			
 			table.tableChanged(new TableModelEvent(table.getModel()));
+			table.packColumn(1, -1);;
 		} catch (RepositoryException e) {
 			e.printStackTrace();
 		}

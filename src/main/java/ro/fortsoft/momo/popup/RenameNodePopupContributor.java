@@ -16,15 +16,15 @@ import java.awt.event.ActionEvent;
 import java.util.List;
 
 import javax.jcr.Node;
-import javax.jcr.Session;
+import javax.jcr.RepositoryException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
 
-import ro.fortsoft.momo.JcrBrowser;
 import ro.fortsoft.momo.HierarchyNode;
 import ro.fortsoft.momo.HierarchyTree;
 import ro.fortsoft.momo.HierarchyTreeModel;
+import ro.fortsoft.momo.JcrBrowser;
 import ro.fortsoft.momo.util.ImageUtils;
 import ro.fortsoft.momo.util.JcrUtils;
 
@@ -41,19 +41,19 @@ public class RenameNodePopupContributor extends AbstractPopupContributor {
 	@Override
 	public Action getPopupAction(List<HierarchyNode> selectedNodes) {
 		if ((selectedNodes.size() == 1) && areNodes(selectedNodes))  {
-			return new RenameFolderAction(selectedNodes.get(0));
+			return new RenameNodeAction(selectedNodes.get(0));
 		}
 
 		return null;
 	}
 
-	private class RenameFolderAction extends AbstractAction {
+	private class RenameNodeAction extends AbstractAction {
 
 		private static final long serialVersionUID = 1L;
 
 		private HierarchyNode selectedNode;
 		
-		public RenameFolderAction(HierarchyNode selectedNode) {
+		public RenameNodeAction(HierarchyNode selectedNode) {
 			super("Rename");
 			
 			this.selectedNode = selectedNode;
@@ -63,19 +63,25 @@ public class RenameNodePopupContributor extends AbstractPopupContributor {
 
 		@Override
 		public void actionPerformed(ActionEvent event) {
-			String newName = JOptionPane.showInputDialog(JcrBrowser.getBrowserFrame(), "Name", selectedNode);
+			Node jcrNode = (Node) selectedNode.getUserObject();
+			String oldName;
+			try {
+				oldName = jcrNode.getName();
+			} catch (RepositoryException e) {
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(JcrBrowser.getBrowserFrame(), e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			
+			String newName = JOptionPane.showInputDialog(JcrBrowser.getBrowserFrame(), "Name", oldName);
 			System.out.println("newName = " + newName);
 			if (newName != null) {
 				try {
-					Session session = JcrUtils.getSession();
-					Node jcrNode = (Node) selectedNode.getUserObject();
-					session.move(jcrNode.getPath(), jcrNode.getParent().getPath() + "/" + newName);
-					session.save();
+					JcrUtils.rename(jcrNode, newName);
 
 					// refresh the tree
 					HierarchyTree tree = JcrBrowser.getBrowserFrame().getHierarchyPanel().getHierarchyTree();;
 					HierarchyTreeModel treeModel = tree.getModel();
-					selectedNode.setName(newName);
 					treeModel.nodeChanged(selectedNode);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -83,7 +89,7 @@ public class RenameNodePopupContributor extends AbstractPopupContributor {
 				}
 			}
 		}
-
+		
 	}
 
 }

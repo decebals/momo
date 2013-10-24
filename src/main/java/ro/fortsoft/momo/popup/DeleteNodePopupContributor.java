@@ -13,18 +13,19 @@
 package ro.fortsoft.momo.popup;
 
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.List;
 
-import javax.jcr.Session;
+import javax.jcr.Node;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
 import javax.swing.tree.TreeNode;
 
-import ro.fortsoft.momo.JcrBrowser;
 import ro.fortsoft.momo.HierarchyNode;
 import ro.fortsoft.momo.HierarchyTree;
 import ro.fortsoft.momo.HierarchyTreeModel;
+import ro.fortsoft.momo.JcrBrowser;
 import ro.fortsoft.momo.util.ImageUtils;
 import ro.fortsoft.momo.util.JcrUtils;
 
@@ -41,19 +42,19 @@ public class DeleteNodePopupContributor extends AbstractPopupContributor {
 	@Override
 	public Action getPopupAction(List<HierarchyNode> selectedNodes) {
 		if (areNodes(selectedNodes)) {
-			return new RemoveFolderAction(selectedNodes);
+			return new DeleteNodeAction(selectedNodes);
 		}
 
 		return null;
 	}
 	
-	private class RemoveFolderAction extends AbstractAction {
+	private class DeleteNodeAction extends AbstractAction {
 
 		private static final long serialVersionUID = 1L;
 		
 		private List<HierarchyNode> selectedNodes;
 
-		public RemoveFolderAction(List<HierarchyNode> selectedNodes) {
+		public DeleteNodeAction(List<HierarchyNode> selectedNodes) {
 			super("Delete");
 			
 			this.selectedNodes = selectedNodes;
@@ -66,12 +67,12 @@ public class DeleteNodePopupContributor extends AbstractPopupContributor {
 			int confirm = JOptionPane.showConfirmDialog(JcrBrowser.getBrowserFrame(), "Delete folder '" + selectedNodes.size() + "'?");
 			if (confirm == 0) {
 				try {
-					Session session = JcrUtils.getSession();
-					for (HierarchyNode selectedNode : selectedNodes) {
-						selectedNode.getUserObject().remove();
+					List<Node> jcrNodes = new ArrayList<Node>();
+					for (HierarchyNode node : selectedNodes) {
+						jcrNodes.add((Node) node.getUserObject());
 					}
-					session.save();
-
+					JcrUtils.remove(jcrNodes);
+					
 					// refresh the tree
 					HierarchyTree tree = JcrBrowser.getBrowserFrame().getHierarchyPanel().getHierarchyTree();;
 					HierarchyTreeModel treeModel = tree.getModel();

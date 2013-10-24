@@ -17,7 +17,13 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Enumeration;
 
+import javax.jcr.Item;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
@@ -26,6 +32,7 @@ import javax.jcr.Workspace;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -34,16 +41,19 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JToolBar;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 
+import org.jdesktop.swingx.JXList;
 import org.jdesktop.swingx.JXPanel;
+import org.jdesktop.swingx.renderer.DefaultListRenderer;
+import org.jdesktop.swingx.renderer.StringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ro.fortsoft.momo.util.ImageUtils;
 import ro.fortsoft.momo.util.JcrUtils;
-import ro.fortsoft.momo.util.SwingUtils;
 
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
@@ -65,7 +75,7 @@ public class QueryPanel extends JXPanel {
 	private QueryHistory queryHistory;
 	
 	private JEditorPane queryEditor;
-	private JTextArea resultTextArea;
+	private JXList resultList;
 	private JComboBox typeComboBox;
 	private JButton previouslyButton;
 	private JButton nextButton;
@@ -149,9 +159,8 @@ public class QueryPanel extends JXPanel {
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.weightx = 1.0;
 		gbc.weighty = 1.0;
-		resultTextArea = new JTextArea();
-		SwingUtils.addPopup(resultTextArea);
-		add(new JScrollPane(resultTextArea), gbc);		
+		resultList = new ResultList();
+		add(new JScrollPane(resultList), gbc);		
 	}
 
 	private JComponent createHistoryPanel() {
@@ -234,12 +243,14 @@ public class QueryPanel extends JXPanel {
 		NodeIterator nodeIterator = queryResult.getNodes();
 		t = System.currentTimeMillis() - t;
 		int resultCounter = 0;
-		resultTextArea.setText("");
+		
+		DefaultListModel resultListModel = new DefaultListModel();
 		while (nodeIterator.hasNext()) {
 			Node node = nodeIterator.nextNode();
-			resultTextArea.append(node.getPath() + "\n\r");
+			resultListModel.addElement(node);
 			resultCounter++;
 		}
+		resultList.setModel(resultListModel);
 		log.info("Found {} nodes for '{}' in {} ms", resultCounter, queryEditor.getText(), t);
 		JOptionPane.showMessageDialog(null, resultCounter + " items found", "Info", JOptionPane.INFORMATION_MESSAGE);
 		
@@ -247,4 +258,119 @@ public class QueryPanel extends JXPanel {
 		refreshHistoryStatusButtons();
 	}
 		
+	private class ResultList extends JXList {
+
+		private static final long serialVersionUID = 1L;
+		
+		public ResultList() {
+			super();
+			
+			StringValue stringValue = new StringValue() {
+				
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public String getString(Object value) {
+					try {
+						return ((Node) value).getPath();
+					} catch (RepositoryException e) {
+						e.printStackTrace();
+					}
+					
+					return null;
+				}
+				
+			};
+			setCellRenderer(new DefaultListRenderer(stringValue));
+			
+			addMouseListener(new MouseAdapter() {
+				
+				@Override
+				public void mouseClicked(MouseEvent event) {
+					Object[] selectedValues = getSelectedValues();
+					if (selectedValues.length > 1) {
+						return;
+					}
+
+					if (event.getClickCount() == 2) {
+						goToNode((Node) selectedValues[0]);
+						event.consume();;
+					}
+				}
+				
+			});
+
+			addKeyListener(new KeyAdapter() {
+				
+				@Override
+				public void keyReleased(KeyEvent event) {
+					Object[] selectedValues = getSelectedValues();
+					if (selectedValues.length > 1) {
+						return;
+					}
+					
+					if (event.getKeyCode() == KeyEvent.VK_ENTER) {
+						goToNode((Node) selectedValues[0]);
+						event.consume();
+					}
+				}
+				
+			});
+		}
+		
+		private void goToNode(Node node) {
+			System.out.println("Go to " + node);
+
+			HierarchyNode searchedNode;
+			try {
+				searchedNode = searchNode(node);
+			} catch (RepositoryException e) {
+				e.printStackTrace();
+				return;
+			}
+			
+			System.out.println("searchedNode = " + searchedNode);
+			if (searchedNode != null) {
+				// select Hierarchy tab
+				JcrBrowserFrame frame = JcrBrowser.getBrowserFrame();				
+				frame.selectTab(0);
+				
+				// make the node visible by scroll to it
+				HierarchyTree tree = frame.getHierarchyPanel().getHierarchyTree();;
+				HierarchyTreeModel treeModel = tree.getModel();
+				TreeNode[] nodes = treeModel.getPathToRoot(searchedNode);
+				TreePath path = new TreePath(nodes);
+				System.out.println(path.toString());
+				tree.setExpandsSelectedPaths(true);
+				tree.setSelectionPath(path);
+				tree.scrollPathToVisible(path);
+			} else {
+				System.out.println("Node not found");
+			}
+		}
+		
+		@SuppressWarnings("unchecked")
+		private HierarchyNode searchNode(Node node) throws RepositoryException {
+			JcrBrowserFrame frame = JcrBrowser.getBrowserFrame();
+			HierarchyTree tree = frame.getHierarchyPanel().getHierarchyTree();;
+			HierarchyTreeModel treeModel = tree.getModel();
+			HierarchyNode root = treeModel.getRoot();
+
+			HierarchyNode searchedNode = null;
+			Enumeration<HierarchyNode> en = root.breadthFirstEnumeration();  
+			while (en.hasMoreElements()) {   
+				searchedNode = en.nextElement(); 
+				Item item = searchedNode.getUserObject();
+				if (item instanceof Node) {
+					if (node.getIdentifier().equals(((Node) item).getIdentifier())) {
+						return searchedNode;
+					}
+				}  
+			}  
+			
+			return null;  
+		}  
+
+	}
+	
 }

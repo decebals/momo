@@ -84,7 +84,7 @@ public class HierarchyTree extends JXTree {
         addMouseListener(new TreePopup());
     }
 
-    private void expandNode(HierarchyNode node, boolean selectNode) {
+    void expandNode(HierarchyNode node, boolean selectNode) {
         if (node == null) {
             throw new IllegalArgumentException("HierarchyNode is null");
         }
@@ -92,7 +92,7 @@ public class HierarchyTree extends JXTree {
         if (node.getChildCount() == 0) {
             TreeLoader loader = new TreeLoader(node, selectNode);
             loader.execute();
-        }
+        }        
     }
 
     private class NodeExpansionListener implements TreeExpansionListener {
@@ -114,13 +114,14 @@ public class HierarchyTree extends JXTree {
 
     private class TreeLoader {
 
-        private HierarchyNode parentNode;
-        private boolean selectParentNode;
+        private HierarchyNode node;
+        private boolean selectNode;
 
-        TreeLoader(HierarchyNode parentNode, boolean selectParentNode) {
+        TreeLoader(HierarchyNode node, boolean selectNode) {
             super();
-            this.parentNode = parentNode;
-            this.selectParentNode= selectParentNode;
+            
+            this.node = node;
+            this.selectNode = selectNode;
         }
 
         void execute() {
@@ -128,49 +129,51 @@ public class HierarchyTree extends JXTree {
                 try {
                     loadChildren();
                 } finally {
-                    fireStructureChanged(parentNode);
-                    if (selectParentNode) {
+                    fireStructureChanged(node);
+                    if (selectNode) {
                         clearSelection();
-                        setSelectionPath(new TreePath(parentNode.getPath()));
+                        setSelectionPath(new TreePath(node.getPath()));
                     }
                 }
             } catch (Throwable e) {
                 e.printStackTrace();
             }
+            
+            node.setExpanded(true);
         }
 
         /**
          * This expands the parent node and shows all its children.
          */
         private void loadChildren() throws Exception {
-        	Item item = parentNode.getUserObject();
+        	Item item = node.getUserObject();
         	if (item instanceof Node) {
         		long t = System.currentTimeMillis(); 
         		loadNodes((Node) item);
         		loadProperties((Node) item);
         		t = System.currentTimeMillis() - t;
         		
-        		log.info("Load {}  items for '{}' in {} ms",  parentNode.getChildCount(), item.getPath(), t); 
+        		log.info("Load {}  items for '{}' in {} ms",  node.getChildCount(), item.getPath(), t); 
         	}
         }
 
         private void loadNodes(Node pNode) throws Exception {
         	NodeIterator nit = pNode.getNodes();
         	while (nit.hasNext()) {
-        		Node node = nit.nextNode();
-        		HierarchyNode childNode = new HierarchyNode(node);
-        		childNode.setAllowsChildren(node.hasNodes() || node.hasProperties());
-        		parentNode.add(childNode);
+        		Node item = nit.nextNode();
+        		HierarchyNode childNode = new HierarchyNode(item);
+        		childNode.setAllowsChildren(item.hasNodes() || item.hasProperties());
+        		node.add(childNode);
         	}
         }
 
         private void loadProperties(Node pNode)  throws Exception {
         	PropertyIterator pit = pNode.getProperties();
         	while (pit.hasNext()) {
-        		Property node = pit.nextProperty();
-        		HierarchyNode childNode = new HierarchyNode(node);
+        		Property item = pit.nextProperty();
+        		HierarchyNode childNode = new HierarchyNode(item);
         		childNode.setAllowsChildren(false);
-        		parentNode.add(childNode);
+        		node.add(childNode);
         	}
         }
 
@@ -203,10 +206,8 @@ public class HierarchyTree extends JXTree {
 	            if (item.getDepth() == 0) {
 	            	setIcon(ImageUtils.getImageIcon("root.png"));
 	            } else if (item instanceof Node) {
-	//            	setIcon(ImageUtils.getImageIcon("node.gif"));
 	            	setIcon(ImageUtils.getImageIcon("node.png"));
 	            } else {
-//	            	setIcon(ImageUtils.getImageIcon("property.gif"));
 	            	setIcon(ImageUtils.getImageIcon("property.png"));
 	            }
             } catch (Exception e) {
