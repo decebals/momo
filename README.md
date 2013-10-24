@@ -36,9 +36,9 @@ You must create a file momo.properties from momo-sample.properties
 
 To make a query:
 - go to Query tab
-- choose the query type (XPath, SQL, JCR_SQL2 and JCR_JQOM); XPath, SQL are deprecated in JCR2
+- choose the query type (`XPath, SQL, JCR_SQL2 and JCR_JQOM`); XPath, SQL are deprecated in JCR2
 - enter the query text
-- press Run botton
+- press Run button
 
 The query result contains a list with nodes. Double click on a node or press Enter key to "jump" to view that node in the Hierarchy tab.
 
