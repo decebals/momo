@@ -8,8 +8,11 @@ Features/Benefits
 -------------------
 Momo is an open source (Apache license) tiny JCR Browser.   
 With Momo you can browse a JCR, you can view the item's properties. Momo comes with built-in viewers for images and xml files.    
-Also, you can query the JCR using XPath, SQL, JCR_SQL2 and JCR_JQOM. A query history is stored in the query-history.xml file and and you can navigate in the query history from application.   
+Also, you can query the JCR using XPath, SQL, JCR_SQL2 and JCR_JQOM. A query history is stored in the query-history.xml file and you can navigate in the query history from application.   
 All you must to do is to set some properties in the momo.properties file.  
+
+For the moment only Jackrabbit is supported (this is the only one I have been using) but I think that I can easily add support for ModeShape or other JCR implementations.  
+All operations are read-only in general (except for renaming or deleting a node from hierarchy tab). 
 
 How to use
 -------------------
@@ -36,7 +39,7 @@ You must create a file momo.properties from momo-sample.properties
 
 To make a query:
 - go to Query tab
-- choose the query type (`XPath, SQL, JCR_SQL2 and JCR_JQOM`); XPath, SQL are deprecated in JCR2
+- choose the query type (`XPath`, `SQL`, `JCR_SQL2` and `JCR_JQOM`); XPath, SQL are deprecated in JCR2
 - enter the query text
 - press Run button
 
