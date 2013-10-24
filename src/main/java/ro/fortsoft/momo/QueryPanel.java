@@ -12,6 +12,7 @@
  */
 package ro.fortsoft.momo;
 
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -38,10 +39,12 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
+import javax.swing.ListCellRenderer;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
@@ -69,8 +72,10 @@ public class QueryPanel extends JXPanel {
 	
 	private static final String XPATH_TYPE = Query.XPATH;
 	private static final String SQL_TYPE = Query.SQL;
+	private static final String SQL2_TYPE = Query.JCR_SQL2;
+	private static final String JQOM_TYPE = Query.JCR_JQOM;
 	
-	private static final String[] TYPES = { XPATH_TYPE, SQL_TYPE };
+	private static final String[] TYPES = { SQL2_TYPE, JQOM_TYPE, XPATH_TYPE, SQL_TYPE };
 	
 	private QueryHistory queryHistory;
 	
@@ -82,6 +87,7 @@ public class QueryPanel extends JXPanel {
 	
     public QueryPanel() {
     	super();
+    	
         initComponents();
     }
 
@@ -109,6 +115,8 @@ public class QueryPanel extends JXPanel {
 
 		gbc.gridx = 1;
 		typeComboBox = new JComboBox(TYPES);
+		typeComboBox.setRenderer(new QueryTypeComboBoxRenderer());
+		
 		add(typeComboBox, gbc);
 		
 		gbc.gridx = 2;
@@ -126,10 +134,6 @@ public class QueryPanel extends JXPanel {
 		queryEditor = new JEditorPane();
 //		addPopup(queryEditor);
 		add(new JScrollPane(queryEditor), gbc);
-		queryEditor.setContentType("text/xpath");		
-		if (queryHistory.size() > 0) {
-			queryEditor.setText(queryHistory.getCurrentItem().getStatement());
-		}
 		
 		gbc.gridx = 0;
 		gbc.gridy = 3;
@@ -161,6 +165,16 @@ public class QueryPanel extends JXPanel {
 		gbc.weighty = 1.0;
 		resultList = new ResultList();
 		add(new JScrollPane(resultList), gbc);		
+				
+		if (queryHistory.size() > 0) {
+			QueryHistory.Item item = queryHistory.getCurrentItem();
+			typeComboBox.setSelectedItem(item.getType());
+			queryEditor.setText(item.getStatement());
+			
+			if (XPATH_TYPE.equals(item.getType())) {
+				queryEditor.setContentType("text/xpath");
+			}
+		}
 	}
 
 	private JComponent createHistoryPanel() {
@@ -198,18 +212,19 @@ public class QueryPanel extends JXPanel {
 	
 	private void onPreviouslyHistory() {
 		queryHistory.movePreviously();
-		onHistoryMove();
+		onHistoryItemSelected();
 	}
 
 	private void onNextHistory() {
 		queryHistory.moveNext();
-		onHistoryMove();
+		onHistoryItemSelected();
 	}
 
-	// TODO better name
-	private void onHistoryMove() {
+	private void onHistoryItemSelected() {
 		refreshHistoryStatusButtons();
+		
 		QueryHistory.Item item = queryHistory.getCurrentItem();
+		typeComboBox.setSelectedItem(item.getType());
 		queryEditor.setText(item.getStatement());
 	}
 	
@@ -319,8 +334,6 @@ public class QueryPanel extends JXPanel {
 		}
 		
 		private void goToNode(Node node) {
-			System.out.println("Go to " + node);
-
 			HierarchyNode searchedNode;
 			try {
 				searchedNode = searchNode(node);
@@ -329,7 +342,6 @@ public class QueryPanel extends JXPanel {
 				return;
 			}
 			
-			System.out.println("searchedNode = " + searchedNode);
 			if (searchedNode != null) {
 				// select Hierarchy tab
 				JcrBrowserFrame frame = JcrBrowser.getBrowserFrame();				
@@ -340,7 +352,6 @@ public class QueryPanel extends JXPanel {
 				HierarchyTreeModel treeModel = tree.getModel();
 				TreeNode[] nodes = treeModel.getPathToRoot(searchedNode);
 				TreePath path = new TreePath(nodes);
-				System.out.println(path.toString());
 				tree.setExpandsSelectedPaths(true);
 				tree.setSelectionPath(path);
 				tree.scrollPathToVisible(path);
@@ -371,6 +382,26 @@ public class QueryPanel extends JXPanel {
 			return null;  
 		}  
 
+	}
+	
+	private class QueryTypeComboBoxRenderer extends JLabel implements ListCellRenderer {
+		
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public Component getListCellRendererComponent(JList list,
+				Object comboItemObject, int comboItemIndex, boolean isSelected,
+				boolean cellHasFocus) {
+			String text = (String) comboItemObject;
+			text = text.toUpperCase();
+			if (text.equalsIgnoreCase(XPATH_TYPE) || text.equalsIgnoreCase(SQL2_TYPE)) {
+				text = "<html><strike>" + text + "</strike></html>";
+			}
+			setText(text);
+
+			return this;
+		}
+		
 	}
 	
 }
