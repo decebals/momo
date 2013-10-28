@@ -85,7 +85,7 @@ public class ConsolePanel extends JXPanel implements TreeSelectionListener {
 				table.add("Protected", propertyDefinition.isProtected());
 				table.add("Multiple", propertyDefinition.isMultiple());
 				if (!propertyDefinition.isMultiple()) {
-					table.add("Size", property.getLength());
+					table.add("Size", humanReadableByteCount(property.getLength()));
 					Value value = property.getValue();
 					if (value.getType() == PropertyType.BINARY) {
 						table.add("Value", "...");
@@ -186,6 +186,18 @@ public class ConsolePanel extends JXPanel implements TreeSelectionListener {
 			
 		});
 		
+	}
+	
+	private String humanReadableByteCount(long bytes) {
+		int unit = 1024;
+	    if (bytes < unit) {
+	    	return bytes + " B";
+	    }
+	    
+	    int exp = (int) (Math.log(bytes) / Math.log(unit));
+	    String pre = "KMGTPE".charAt(exp - 1) + "";
+	    
+	    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
 	}
 
 }
