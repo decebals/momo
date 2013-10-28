@@ -13,6 +13,7 @@
 package ro.fortsoft.momo.viewer;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
@@ -42,6 +43,7 @@ public class XmlViewer extends JXPanel {
 		viewPanel.setEditable(false);
 		JScrollPane scrollPane = new JScrollPane(viewPanel);
 		add(scrollPane, BorderLayout.CENTER);
+		viewPanel.setPreferredSize(new Dimension(600, 400));
 		viewPanel.setContentType("text/xml");
 		viewPanel.setText(text);
 	}
