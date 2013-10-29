@@ -11,7 +11,7 @@ With Momo you can browse a JCR, you can view the item's properties. Momo comes w
 Also, you can query the JCR using XPath, SQL, JCR_SQL2 and JCR_JQOM. A query history is stored in the query-history.xml file and you can navigate in the query history from application.   
 All you must to do is to set some properties in the momo.properties file.  
 
-For the moment only Jackrabbit is supported (this is the only one I have been using) but I think that I can easily add support for ModeShape or other JCR implementations.  
+For the moment only (Local) Jackrabbit is supported (this is the only one I have been using) but I think that I can easily add support for ModeShape or other JCR implementations.  
 All operations are read-only in general (except for renaming or deleting a node from hierarchy tab). 
 
 How to use
