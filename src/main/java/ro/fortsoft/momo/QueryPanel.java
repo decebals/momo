@@ -235,6 +235,7 @@ public class QueryPanel extends JXPanel {
 		if (queryHistory.isEmpty()) {
 			previouslyButton.setEnabled(false);
 			nextButton.setEnabled(false);
+			
 			return;
 		}
 		
@@ -253,21 +254,23 @@ public class QueryPanel extends JXPanel {
 		QueryManager queryManager = workspace.getQueryManager();
 		String queryType = (String) typeComboBox.getSelectedItem();
 		Query query = queryManager.createQuery(queryEditor.getText(), queryType);
-		QueryResult queryResult = query.execute();
+		
 		long t = System.currentTimeMillis();
+		QueryResult queryResult = query.execute();
 		NodeIterator nodeIterator = queryResult.getNodes();
 		t = System.currentTimeMillis() - t;
-		int resultCounter = 0;
 		
+		int resultCounter = 0;
 		DefaultListModel resultListModel = new DefaultListModel();
 		while (nodeIterator.hasNext()) {
 			Node node = nodeIterator.nextNode();
 			resultListModel.addElement(node);
 			resultCounter++;
 		}
+		
 		resultList.setModel(resultListModel);
 		log.info("Found {} nodes for '{}' in {} ms", resultCounter, queryEditor.getText(), t);
-		JOptionPane.showMessageDialog(null, resultCounter + " items found", "Info", JOptionPane.INFORMATION_MESSAGE);
+		JOptionPane.showMessageDialog(null, "Found " + resultCounter + " nodes in " + t + " ms", "Info", JOptionPane.INFORMATION_MESSAGE);
 		
 		queryHistory.addItem(new QueryHistory.Item(queryType, queryEditor.getText()));
 		refreshHistoryStatusButtons();
