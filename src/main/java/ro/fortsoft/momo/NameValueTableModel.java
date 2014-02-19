@@ -15,7 +15,16 @@ package ro.fortsoft.momo;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.jcr.Item;
+import javax.jcr.Node;
+import javax.jcr.Property;
+import javax.jcr.PropertyType;
+import javax.jcr.RepositoryException;
+import javax.jcr.Value;
+import javax.jcr.nodetype.PropertyDefinition;
 import javax.swing.table.AbstractTableModel;
+
+import ro.fortsoft.momo.util.JcrUtils;
 
 /**
  * @author Decebal Suiu
@@ -26,13 +35,19 @@ public class NameValueTableModel extends AbstractTableModel {
 	
 	private static final String[] COLUMN_NAMES = { "Name", "Value" };
 	private static final Class<?>[] COLUMN_TYPES = new Class[] { String.class, Object.class };
-
+	
 	private List<NameValue> rows;
+
+	private Item currentItem;
 	
 	public NameValueTableModel() {
 		super();
 
 		rows = new ArrayList<NameValue>();
+	}
+
+	public void add(String name, Object value) {
+		rows.add(new NameValue(name, value));
 	}
 
 	public void add(NameValue row) {
@@ -79,6 +94,137 @@ public class NameValueTableModel extends AbstractTableModel {
 		}
 		
 		return row.getValue();
+	}
+
+	@Override
+	public boolean isCellEditable(int rowIndex, int columnIndex) {		
+		// TODO it's hardcoded
+		if (columnIndex == 0) {
+			return false;
+		}
+		NameValue row = rows.get(rowIndex);			
+		if (!"Value".equals(row.getName())) {
+			return false;
+		}
+				
+		Property property = (Property) currentItem;
+		
+		boolean multiple;
+		try {
+			multiple = property.isMultiple();
+		} catch (RepositoryException e) {
+			// TODO any good idea?
+			throw new RuntimeException(e);			
+		}
+		
+		if (multiple) {
+			return false;
+		}
+		
+		boolean locked;
+		try {
+			locked = property.getDefinition().isProtected();
+		} catch (RepositoryException e) {
+			// TODO any good idea?
+			throw new RuntimeException(e);			
+		}
+		
+		if (locked) {
+			return false;
+		}
+		
+		int valueType;
+		try {
+			valueType = property.getValue().getType();
+		} catch (RepositoryException e) {
+			// TODO any good idea?
+			throw new RuntimeException(e);			
+		}
+		
+		// TODO add more types
+		if (valueType != PropertyType.STRING) {
+			return false;
+		}
+		
+		return true;
+	}
+
+	@Override
+	public void setValueAt(Object value, int rowIndex, int columnIndex) {
+		Property property = (Property) currentItem;
+		try {
+			property.setValue((String) value);
+			JcrUtils.getSession().save();
+			
+			// update cache
+			rows.get(rowIndex).setValue(value);
+		} catch (RepositoryException e) {
+			// TODO any good idea?
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void setCurrentItem(Item currentItem) {
+		this.currentItem = currentItem;
+		
+		try {
+			initRows();
+		} catch (RepositoryException e) {
+			// TODO any good idea?
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void initRows() throws RepositoryException {
+		rows.clear();
+		
+		add("Name", currentItem.getName());
+		add("Path", currentItem.getPath());
+		add("Depth", currentItem.getDepth());
+		if (currentItem.isNode()) { // it's a node
+			Node node = (Node) currentItem;
+			add("Identifier", node.getIdentifier());
+			add("Locked", node.isLocked());
+			add("Nodes", node.getNodes().getSize());
+			add("Properties", node.getProperties().getSize());
+		} else { // it's a property
+			Property property = (Property) currentItem;
+			add("Type", PropertyType.nameFromValue(property.getType()));
+			PropertyDefinition propertyDefinition = property.getDefinition();
+			add("Mandatory", propertyDefinition.isMandatory());
+			add("Protected", propertyDefinition.isProtected());
+			add("Multiple", propertyDefinition.isMultiple());
+			if (!propertyDefinition.isMultiple()) {
+				add("Size", humanReadableByteCount(property.getLength()));
+				Value value = property.getValue();
+				if (value.getType() == PropertyType.BINARY) {
+					add("Value", "...");
+				} else {
+					add("Value", value.getString());
+				}
+			} else {
+				Value[] values = property.getValues();
+				for (Value value : values) {
+					if (value.getType() == PropertyType.BINARY) {
+						add("Value", "...");
+					} else {
+						add("Value", value.getString());
+					}
+				}
+			}
+		}
+	}
+	
+	private String humanReadableByteCount(long bytes) {
+		int unit = 1024;
+	    if (bytes < unit) {
+	    	return bytes + " B";
+	    }
+	    
+	    int exp = (int) (Math.log(bytes) / Math.log(unit));
+	    String pre = "KMGTPE".charAt(exp - 1) + "";
+	    
+	    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
 	}
 
 }

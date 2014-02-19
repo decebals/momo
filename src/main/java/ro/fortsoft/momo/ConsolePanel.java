@@ -18,12 +18,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.jcr.Item;
-import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
-import javax.jcr.Value;
-import javax.jcr.nodetype.PropertyDefinition;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JScrollPane;
@@ -64,51 +61,10 @@ public class ConsolePanel extends JXPanel implements TreeSelectionListener {
 		}
 		
 		currentItem = treeNode.getUserObject();
-				
-		try {
-			table.clear();
-			
-			table.add("Name", currentItem.getName());
-			table.add("Path", currentItem.getPath());
-			table.add("Depth", currentItem.getDepth());
-			if (currentItem.isNode()) { // it's a node
-				Node node = (Node) currentItem;
-				table.add("Identifier", node.getIdentifier());
-				table.add("Locked", node.isLocked());
-				table.add("Nodes", node.getNodes().getSize());
-				table.add("Properties", node.getProperties().getSize());
-			} else { // it's a property
-				Property property = (Property) currentItem;
-				table.add("Type", PropertyType.nameFromValue(property.getType()));
-				PropertyDefinition propertyDefinition = property.getDefinition();
-				table.add("Mandatory", propertyDefinition.isMandatory());
-				table.add("Protected", propertyDefinition.isProtected());
-				table.add("Multiple", propertyDefinition.isMultiple());
-				if (!propertyDefinition.isMultiple()) {
-					table.add("Size", humanReadableByteCount(property.getLength()));
-					Value value = property.getValue();
-					if (value.getType() == PropertyType.BINARY) {
-						table.add("Value", "...");
-					} else {
-						table.add("Value", value.getString());
-					}
-				} else {
-					Value[] values = property.getValues();
-					for (Value value : values) {
-						if (value.getType() == PropertyType.BINARY) {
-							table.add("Value", "...");
-						} else {
-							table.add("Value", value.getString());
-						}
-					}
-				}
-			}
-			
-			table.tableChanged(new TableModelEvent(table.getModel()));
-			table.packColumn(1, -1);;
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-		}
+		
+		table.getModel().setCurrentItem(currentItem);
+		table.tableChanged(new TableModelEvent(table.getModel()));
+		table.packColumn(1, -1);
 	}
 
 	private void initComponents() {
@@ -128,6 +84,10 @@ public class ConsolePanel extends JXPanel implements TreeSelectionListener {
 				Point point = event.getPoint();
 				int columnIndex = table.convertColumnIndexToModel(table.columnAtPoint(point));
 				if (columnIndex != 1) {
+					return;
+				}
+				
+				if (table.rowAtPoint(point) == -1) {
 					return;
 				}
 				
@@ -188,16 +148,4 @@ public class ConsolePanel extends JXPanel implements TreeSelectionListener {
 		
 	}
 	
-	private String humanReadableByteCount(long bytes) {
-		int unit = 1024;
-	    if (bytes < unit) {
-	    	return bytes + " B";
-	    }
-	    
-	    int exp = (int) (Math.log(bytes) / Math.log(unit));
-	    String pre = "KMGTPE".charAt(exp - 1) + "";
-	    
-	    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
-	}
-
 }

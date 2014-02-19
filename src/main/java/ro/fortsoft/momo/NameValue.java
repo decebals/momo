@@ -33,6 +33,10 @@ public class NameValue {
 		return value;
 	}
 
+	public void setValue(Object value) {
+		this.value = value;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
