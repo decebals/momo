@@ -42,7 +42,7 @@
                     <optimize>true</optimize>
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -79,12 +79,12 @@
                     <tagNameFormat>release-@{project.version}</tagNameFormat>
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.4.3</version>
             </plugin>
-            
+
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.4</version>
@@ -98,7 +98,7 @@
 					</archive>
 		        </configuration>
             </plugin>
-            			
+
  			<plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.3</version>
@@ -119,7 +119,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>			
+            </plugin>
         </plugins>
     </build>
 
@@ -133,7 +133,7 @@
 			<groupId>org.swinglabs.swingx</groupId>
 			<artifactId>swingx-core</artifactId>
 			<version>1.6.5-1</version>
-		</dependency>    
+		</dependency>
 		<dependency>
 			<groupId>de.sciss</groupId>
 			<artifactId>jsyntaxpane</artifactId>
@@ -148,34 +148,49 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.7.5</version>
-		</dependency>            
+		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>1.2.16</version>
-		</dependency>            
+		</dependency>
 		<dependency>
 			<groupId>com.thoughtworks.xstream</groupId>
 			<artifactId>xstream</artifactId>
 			<version>1.4.4</version>
-		</dependency>            		
+		</dependency>
 		<dependency>
 			<groupId>javax.jcr</groupId>
 			<artifactId>jcr</artifactId>
 			<version>2.0</version>
-		</dependency>		
+		</dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.1</version>
+        </dependency>
 		<dependency>
 			<groupId>org.apache.jackrabbit</groupId>
 			<artifactId>jackrabbit-core</artifactId>
-			<version>2.6.3</version>
-		</dependency>            
+			<version>2.6.5</version>
+		</dependency>
+        <dependency>
+            <groupId>org.apache.jackrabbit</groupId>
+            <artifactId>jackrabbit-jcr2dav</artifactId>
+            <version>2.6.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.jackrabbit</groupId>
+            <artifactId>jackrabbit-spi</artifactId>
+            <version>2.6.5</version>
+        </dependency>
 		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derby</artifactId>
 			<version>10.10.1.1</version>
 		</dependency>
 	</dependencies>
-	
+
     <profiles>
         <profile>
             <id>release-sign-artifacts</id>
@@ -204,5 +219,5 @@
             </build>
         </profile>
     </profiles>
-  
+
 </project>
